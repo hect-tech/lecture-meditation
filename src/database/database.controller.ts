@@ -1,10 +1,13 @@
 import { Controller, Post } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { seedData } from './seeds/initial-data.seed';
 
 @Controller('database')
 export class DatabaseController {
-  constructor(private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource()
+    private dataSource: DataSource) {}
 
   @Post('seed')
   async seedDatabase() {
