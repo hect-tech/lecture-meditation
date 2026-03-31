@@ -29,7 +29,8 @@ import configuration from './config/configuration';
           rejectUnauthorized: false,
         },
         autoLoadEntities: true,
-        synchronize: process.env.NODE_ENV === 'development',
+        synchronize:
+          process.env.NODE_ENV === 'development' || process.env.TYPEORM_SYNC === 'true',
         migrations: ['dist/migrations/*.js'],
         migrationsRun: process.env.NODE_ENV === 'production',
       }),
