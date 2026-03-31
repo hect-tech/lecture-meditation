@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { getDataSourceToken } from '@nestjs/typeorm';
 import { DevotionModule } from './devotion/devotion.module';
 import { BookModule } from './book/book.module';
 import { AuthorsModule } from './authors/authors.module';
@@ -12,6 +14,7 @@ import { TextModule } from './text/text.module';
 import { LanguageModule } from './language/language.module';
 import { SearchModule } from './search/search.module';
 import { AdminModule } from './admin/admin.module';
+import { DatabaseController } from './database/database.controller';
 import configuration from './config/configuration';
 
 @Module({
@@ -23,13 +26,14 @@ import configuration from './config/configuration';
       imports: [ConfigModule],
       useFactory: async (configService) => ({
         type: 'postgres',
-        host: configService.get('database.host'),
-        port: configService.get('database.port'),
-        username: configService.get('database.user'),
-        password: configService.get('database.password'),
-        database: configService.get('database.name'),
+        url: process.env.DATABASE_URL,
+        ssl: {
+          rejectUnauthorized: false,
+        },
         autoLoadEntities: true,
         synchronize: process.env.NODE_ENV === 'development',
+        migrations: ['dist/migrations/*.js'],
+        migrationsRun: process.env.NODE_ENV === 'production',
       }),
       inject: [ConfigService],
     }),
@@ -43,7 +47,7 @@ import configuration from './config/configuration';
     SearchModule,
     AdminModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, DatabaseController],
+  providers: [AppService, { provide: DataSource, useExisting: getDataSourceToken() }],
 })
 export class AppModule {}
