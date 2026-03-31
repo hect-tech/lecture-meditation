@@ -3,8 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { getDataSourceToken } from '@nestjs/typeorm';
 import { DevotionModule } from './devotion/devotion.module';
 import { BookModule } from './book/book.module';
 import { AuthorsModule } from './authors/authors.module';
@@ -48,6 +46,6 @@ import configuration from './config/configuration';
     AdminModule,
   ],
   controllers: [AppController, DatabaseController],
-  providers: [AppService, { provide: DataSource, useExisting: getDataSourceToken() }],
+  providers: [AppService],
 })
 export class AppModule {}
