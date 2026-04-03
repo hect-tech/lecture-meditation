@@ -9,4 +9,7 @@ export class createTextDto {
   
   @ApiProperty({required: true})
   bookId: number;
+  
+  @ApiProperty({required: false})
+  reference?: string;
 }

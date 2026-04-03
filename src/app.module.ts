@@ -13,6 +13,7 @@ import { LanguageModule } from './language/language.module';
 import { SearchModule } from './search/search.module';
 import { AdminModule } from './admin/admin.module';
 import { DatabaseController } from './database/database.controller';
+import { BahaiDateModule } from './bahai-date/bahai-date.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -49,6 +50,7 @@ import configuration from './config/configuration';
     LanguageModule,
     SearchModule,
     AdminModule,
+    BahaiDateModule,
   ],
   controllers: [AppController, DatabaseController],
   providers: [AppService],

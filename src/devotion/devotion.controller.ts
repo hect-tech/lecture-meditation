@@ -3,6 +3,8 @@ import { ApiTags, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { DevotionService } from './devotion.service';
 import { CreateDevotionDto } from './dto/create-devotion.dto';
 import { CreateDevotionTextDto } from './dto/create-devotion-text.dto';
+import { CreateCompleteDevotionDto, AddTextToDevotionDto } from './dto/create-complete-devotion.dto';
+import { ResponseService } from 'src/common/services/response.service';
 
 @ApiTags('devotion')
 @Controller('devotion')
@@ -22,10 +24,12 @@ export class DevotionController {
     return this.devotionService.findAll();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Récupérer une dévotion par ID' })
-  findOne(@Param('id') id: string) {
-    return this.devotionService.findOne(+id);
+  // Lecture du jour endpoints
+  @Get('today')
+  @ApiOperation({ summary: 'Lecture du jour' })
+  @ApiQuery({ name: 'lang', required: false, example: 'fr', description: 'Code langue' })
+  async getTodayReading(@Query('lang') languageCode?: string) {
+     return await this.devotionService.getTodayReading(languageCode || 'fr');
   }
 
   @Get('date/:date')
@@ -33,6 +37,12 @@ export class DevotionController {
   @ApiParam({ name: 'date', example: '2026-04-03' })
   findByDate(@Param('date') date: string) {
     return this.devotionService.findByDate(new Date(date));
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Récupérer une dévotion par ID' })
+  findOne(@Param('id') id: string) {
+    return this.devotionService.findOne(+id);
   }
 
   @Patch(':id')
@@ -78,19 +88,36 @@ export class DevotionController {
     return this.devotionService.removeDevotionText(+id);
   }
 
-  // Lecture du jour endpoints
-  @Get('today')
-  @ApiOperation({ summary: 'Lecture du jour' })
-  @ApiQuery({ name: 'lang', required: false, example: 'fr', description: 'Code langue' })
-  getTodayReading(@Query('lang') languageCode?: string) {
-    return this.devotionService.getTodayReading(languageCode || 'fr');
-  }
-
   @Get('reading/:date')
   @ApiOperation({ summary: 'Lecture par date spécifique' })
   @ApiParam({ name: 'date', example: '2026-04-03' })
   @ApiQuery({ name: 'lang', required: false, example: 'fr', description: 'Code langue' })
   getReadingByDate(@Param('date') date: string, @Query('lang') languageCode?: string) {
     return this.devotionService.getReadingByDate(date, languageCode || 'fr');
+  }
+
+  // Endpoint pour créer la dévotion du jour automatiquement
+  @Post('today')
+  @ApiOperation({ summary: 'Créer la dévotion du jour automatiquement' })
+  createTodayDevotion() {
+    return this.devotionService.createTodayDevotion();
+  }
+
+  // Créer une dévotion complète avec textes
+  @Post('complete')
+  @ApiOperation({ summary: 'Créer une dévotion complète avec plusieurs textes' })
+  createCompleteDevotion(@Body() createCompleteDevotionDto: CreateCompleteDevotionDto) {
+    return this.devotionService.createCompleteDevotion(createCompleteDevotionDto.textIds, createCompleteDevotionDto.moments);
+  }
+
+  // Ajouter un texte à la dévotion du jour
+  @Post('add-text')
+  @ApiOperation({ summary: 'Ajouter un texte à la dévotion du jour' })
+  addTextToTodayDevotion(@Body() addTextToDevotionDto: AddTextToDevotionDto) {
+    return this.devotionService.addTextToTodayDevotion(
+      addTextToDevotionDto.textId, 
+      addTextToDevotionDto.moment, 
+      addTextToDevotionDto.displayOrder
+    );
   }
 }

@@ -20,7 +20,8 @@ export class BookService {
     });
 
     const savedBook = await this.bookRepository.save(book);
-    return ResponseService.created(savedBook, 'Livre créé avec succès');
+    const bookWithRelations = await this.findOne(savedBook.id);
+    return ResponseService.created(bookWithRelations.data, 'Livre créé avec succès');
   }
 
   async findAll(): Promise<ApiResponse<Book[]>> {
@@ -44,6 +45,12 @@ export class BookService {
   }
 
   async update(id: number, updateBookDto: CreateBookDto): Promise<ApiResponse<Book>> {
+    
+    const exists = await this.checkBookExists(id);
+    if (!exists) {
+      return ResponseService.notFound('Livre non trouvé');
+    }
+
     const updateData: any = {
       title: updateBookDto.title
     };
@@ -53,11 +60,6 @@ export class BookService {
     }
     
     await this.bookRepository.update(id, updateData);
-
-    const exists = await this.checkBookExists(id);
-    if (!exists) {
-      return ResponseService.notFound('Livre non trouvé');
-    }
     
     const updatedBook = await this.findOne(id);
     return ResponseService.updated(updatedBook.data, 'Livre mis à jour avec succès');

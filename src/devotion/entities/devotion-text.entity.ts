@@ -15,8 +15,14 @@ export class DevotionText {
   @ManyToOne(() => Devotion, devotion => devotion.devotionTexts, { onDelete: 'CASCADE' })
   devotion: Devotion;
 
+  @Column({ type: 'int' })
+  devotionId: number;
+
   @ManyToOne(() => Text, { onDelete: 'CASCADE' })
   text: Text;
+
+  @Column({ type: 'int' })
+  textId: number;
 
   @Column({
     type: 'enum',

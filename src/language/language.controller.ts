@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { LanguageService } from './language.service';
-import { CreateLanguageDto } from './dto/createLanguageDto.dto';
+import { CreateLanguageDto, UpdateLanguageDto } from './dto/createLanguageDto.dto';
 
 @ApiTags('languages')
 @Controller('languages')
@@ -31,7 +31,7 @@ export class LanguageController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Mettre à jour une langue' })
-  update(@Param('id') id: string, @Body() updateLanguageDto: any) {
+  update(@Param('id') id: string, @Body() updateLanguageDto: UpdateLanguageDto) {
     return this.languageService.update(+id, updateLanguageDto);
   }
 

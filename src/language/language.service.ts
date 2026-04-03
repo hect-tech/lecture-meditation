@@ -3,7 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Language } from './entities/language.entity';
-import { CreateLanguageDto } from './dto/createLanguageDto.dto';
+import { CreateLanguageDto, UpdateLanguageDto } from './dto/createLanguageDto.dto';
+import { ResponseService } from 'src/common/services/response.service';
 
 @Injectable()
 export class LanguageService {
@@ -15,27 +16,60 @@ export class LanguageService {
  
   }
   
-  create(createLanguageDto: CreateLanguageDto) {
+  async create(createLanguageDto: CreateLanguageDto) {
     const language = this.languageRepository.create({
       name: createLanguageDto.name,
       code: createLanguageDto.code,
     });
-    return this.languageRepository.save(language);
+    const codeExists = await this.checkLanguageCodeExists(createLanguageDto.code);
+    if (codeExists) {
+      return ResponseService.badRequest('Cette langue existe déjà');
+    }
+    const savedLanguage = await this.languageRepository.save(language);
+    return ResponseService.created(savedLanguage, 'Langue créée avec succès');
   }
 
-  findAll() {
-    return this.languageRepository.find();
+  async findAll() {
+    const language = await this.languageRepository.find();
+    return ResponseService.success(language, 'Liste de langues récupérées')
   }
 
-  findOne(id: number) {
-    return this.languageRepository.findOneBy({ id });
+  async findOne(id: number) {
+    const exist = await this.checkLanguageExists(id);
+    if (!exist) {
+      return ResponseService.notFound('La langue n\'existe pas');
+    }
+    const language = await this.languageRepository.findOneBy({ id });
+    return ResponseService.success(language, 'Langue trouvée avec succès');
   }
 
-  update(id: number, updateLanguageDto: any) {
-    return this.languageRepository.update(id, updateLanguageDto);
+  async update(id: number, updateLanguageDto: UpdateLanguageDto) {
+    const exists = await this.checkLanguageExists(id);
+    if (!exists) {
+      return ResponseService.notFound('La langue n\'existe pas');
+    }
+    await this.languageRepository.update(id, updateLanguageDto);
+
+    const updatedLanguage = await this.findOne(id);
+    return ResponseService.updated(updatedLanguage.data, 'Langue mise à jour avec succès');
   }
 
-  remove(id: number) {
-    return this.languageRepository.delete(id);
+  async remove(id: number) {
+    // Vérifier d'abord l'existence de la langue
+    const exists = await this.checkLanguageExists(id);
+    if (!exists) {
+      return ResponseService.notFound('La langue n\'existe pas');
+    }
+    await this.languageRepository.delete(id);
+
+    return ResponseService.deleted('Langue supprimée avec succès');
+  }
+
+  async checkLanguageExists(id: number) {
+    return this.languageRepository.exists({ where: { id } });
+  }
+
+  async checkLanguageCodeExists(code: string) {
+    return this.languageRepository.exists({ where: { code } });
   }
 }

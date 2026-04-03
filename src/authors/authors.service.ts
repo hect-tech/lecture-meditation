@@ -29,8 +29,11 @@ export class AuthorsService {
         if (!exists) {
             return ResponseService.notFound('Auteur non trouvé');
         }
-        const updatedAuthor = await this.authorRepository.update(id, authorDto);
-        return ResponseService.updated(updatedAuthor, 'Auteur modifié avec succès');
+        await this.authorRepository.update(id, authorDto);
+
+        const updatedAuthor = await this.findOne(id);
+
+        return ResponseService.updated(updatedAuthor.data, 'Auteur modifié avec succès');
     }
     
     async remove(id: string) {
@@ -43,7 +46,8 @@ export class AuthorsService {
     }
     
     async findAll() {
-        return this.authorRepository.find();
+        const auteur = await this.authorRepository.find();
+        return ResponseService.success(auteur, 'Liste des auteurs récupérée');
     }
     
     async findOne(id: string) {
@@ -51,7 +55,8 @@ export class AuthorsService {
         if (!exists) {
             return ResponseService.notFound('Auteur non trouvé');
         }
-        return this.authorRepository.findOne({ where: { id: parseInt(id) } });
+        const auteur = await this.authorRepository.findOne({ where: { id: parseInt(id) } });
+        return ResponseService.success(auteur, 'Auteur récupéré');
     }
     
     // check l'existence d'un auteur
