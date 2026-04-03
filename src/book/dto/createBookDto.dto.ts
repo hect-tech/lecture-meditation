@@ -9,3 +9,11 @@ export class CreateBookDto {
   @IsNotEmpty()
   authorId: number;
 }
+
+
+export class UpdateBookDto {
+  @ApiProperty()
+  title: string;
+  @ApiProperty()
+  authorId: number;
+}

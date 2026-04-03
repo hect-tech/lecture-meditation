@@ -19,18 +19,22 @@ import configuration from './config/configuration';
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
+      envFilePath: [
+        `.env.${process.env.NODE_ENV || 'development'}`,
+        '.env'
+      ],
+      isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService) => ({
         type: 'postgres',
         url: process.env.DATABASE_URL,
-        ssl: {
+        ssl: process.env.NODE_ENV === 'production' ? {
           rejectUnauthorized: false,
-        },
+        } : false,
         autoLoadEntities: true,
-        synchronize:
-          process.env.NODE_ENV === 'development' || process.env.TYPEORM_SYNC === 'true',
+        synchronize: process.env.NODE_ENV === 'development',
         migrations: ['dist/migrations/*.js'],
         migrationsRun: process.env.NODE_ENV === 'production',
       }),

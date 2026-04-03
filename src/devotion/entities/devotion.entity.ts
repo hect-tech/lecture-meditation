@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { DevotionText } from './devotion-text.entity';
 
 @Entity('devotions')
 export class Devotion {
@@ -14,6 +15,6 @@ export class Devotion {
   @Column({ type: 'int' })
   day: number;
 
-  @OneToMany('DevotionText', 'devotion')
-  devotionTexts: any[];
+  @OneToMany(() => DevotionText, devotionText => devotionText.devotion)
+  devotionTexts: DevotionText[];
 }

@@ -9,7 +9,7 @@ async function bootstrap() {
     .setTitle('Bahai Devotional API')
     .setDescription('API pour lectures quotidiennes baha\'ies')
     .setVersion('1.0')
-    .addTag('devotions')
+    .addTag('devotion')
     .addTag('texts')
     .addTag('books')
     .addTag('authors')

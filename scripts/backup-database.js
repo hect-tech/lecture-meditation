@@ -2,56 +2,56 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// Configuration
-const config = {
-  databaseUrl: process.env.SOURCE_DATABASE_URL || process.env.DATABASE_URL,
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+// Configuration selon l'environnement
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+// Configuration locale (développement)
+const localConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'lecture_dev',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || '1234'
+};
+
+// Configuration production (Render)
+const renderConfig = {
+  connectionString: process.env.DATABASE_URL
 };
 
 function createBackup() {
-  const hasUrl = Boolean(config.databaseUrl);
-  const hasParts = Boolean(config.host && config.port && config.database && config.user);
-
-  if (!hasUrl && !hasParts) {
-    console.error(
-      'Configuration DB manquante. Fournissez SOURCE_DATABASE_URL (recommandé) ou DB_HOST/DB_PORT/DB_NAME/DB_USER (et DB_PASSWORD si nécessaire).',
-    );
-    process.exitCode = 1;
-    return;
-  }
-
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const backupFile = `backup-lecture-dev-${timestamp}.sql`;
+  const backupFile = `backup-lecture-${isDevelopment ? 'dev' : 'prod'}-${timestamp}.sql`;
   
   // Créer le dossier backups s'il n'existe pas
   if (!fs.existsSync('backups')) {
     fs.mkdirSync('backups');
   }
   
-  const pgDumpCommand = hasUrl
-    ? `pg_dump "${config.databaseUrl}" > backups/${backupFile}`
-    : `pg_dump -h ${config.host} -p ${config.port} -U ${config.user} -d ${config.database} > backups/${backupFile}`;
+  console.log(`🔄 Création du backup depuis l'environnement : ${process.env.NODE_ENV}`);
   
   try {
-    console.log('Création du backup...');
-    execSync(pgDumpCommand, { stdio: 'inherit', shell: true });
-    console.log(`Backup créé : backups/${backupFile}`);
+    let pgDumpCommand;
     
-    // Créer un script de restauration
-    const renderUrl = process.env.RENDER_DATABASE_URL || process.env.TARGET_DATABASE_URL;
-    const restoreScript = `#!/bin/bash
-psql "${renderUrl || '$RENDER_DATABASE_URL'}" < backups/${backupFile}
-`;
+    if (isDevelopment) {
+      // Backup depuis la base locale
+      pgDumpCommand = `pg_dump -h ${localConfig.host} -p ${localConfig.port} -U ${localConfig.user} -d ${localConfig.database} > backups/${backupFile}`;
+    } else {
+      // Backup depuis la base de production
+      pgDumpCommand = `pg_dump "${renderConfig.connectionString}" > backups/${backupFile}`;
+    }
     
-    fs.writeFileSync(`backups/restore-${timestamp}.sh`, restoreScript);
-    console.log(`Script de restauration créé : backups/restore-${timestamp}.sh`);
+    // Exécuter avec les variables d'environnement
+    const env = { ...process.env, PGPASSWORD: localConfig.password };
+    execSync(pgDumpCommand, { stdio: 'inherit', env });
+    
+    console.log(`✅ Backup créé : backups/${backupFile}`);
+    
+    return backupFile;
     
   } catch (error) {
-    console.error('Erreur lors du backup :', error.message);
+    console.error('❌ Erreur lors du backup :', error.message);
+    throw error;
   }
 }
 

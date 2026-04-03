@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Devotion } from './devotion.entity';
 import { Text } from '../../text/entities/text.entity';
 
 export enum DevotionMoment {
@@ -11,8 +12,8 @@ export class DevotionText {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne('Devotion', 'devotionTexts', { onDelete: 'CASCADE' })
-  devotion: any;
+  @ManyToOne(() => Devotion, devotion => devotion.devotionTexts, { onDelete: 'CASCADE' })
+  devotion: Devotion;
 
   @ManyToOne(() => Text, { onDelete: 'CASCADE' })
   text: Text;
