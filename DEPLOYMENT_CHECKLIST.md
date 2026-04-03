@@ -1,45 +1,124 @@
-# 🚀 CHECKLIST DÉPLOIEMENT PRODUCTION
+# � LECTURE MÉDITATION - Architecture & Déploiement
 
-## ✅ Pré-déploiement
+## 🎯 IDÉE DE L'APPLICATION
 
-- [ ] Base de données backupée
+Application de **lecture méditative** qui fournit quotidiennement :
+- **Textes sacrés** baha'is pour la méditation
+- **Moments de prière** (matin/soir) 
+- **Multilingue** (Français, Anglais, etc.)
+- **Calendrier baha'i** intégré
+
+## 🏗️ ARCHITECTURE TECHNIQUE
+
+### **Backend NestJS**
+- **API REST** pour les dévotions quotidiennes
+- **Base de données PostgreSQL** avec TypeORM
+- **Relations complexes** : Devotion → DevotionText → Text → Book → Author
+- **Gestion multilingue** avec entités Language
+
+### **Entités principales**
+```typescript
+Devotion {
+  id, date, bahaiMonth, day
+  → DevotionText[] (plusieurs textes par dévotion)
+}
+
+DevotionText {
+  id, moment (MORNING/EVENING), displayOrder
+  → Devotion (relation many-to-one)
+  → Text (relation many-to-one)
+}
+
+Text {
+  content, reference
+  → Language (langue du texte)
+  → Book (livre source)
+  → Author (via Book)
+}
+```
+
+## 🚀 DÉPLOIEMENT
+
+### **Environnements**
+- **Développement** : `.env` → Base locale PostgreSQL
+- **Production** : `.env.production` → Base Render/Railway PostgreSQL
+
+### **Processus de migration**
+1. **TypeORM automatique** : `migrationsRun: true` en production
+2. **Schéma évolutif** : Ajout progressif des colonnes/relations
+3. **Intégrité** : Contraintes foreign key avec CASCADE
+
+## ✅ CHECKLIST DÉPLOIEMENT PRODUCTION
+
+### **🔧 Pré-déploiement**
 - [ ] Code compilé (`npm run build`)
 - [ ] Migration testée en développement
-- [ ] Variables d'environnement vérifiées
-- [ ] Endpoint `/devotion/today?lang=fr` testé
+- [ ] Variables production vérifiées (`.env.production`)
+- [ ] Base de données backupée (Render)
 
-## 🔄 Processus de migration
+### **🔄 Migration automatique (Railway)**
+1. ✅ Détection nouvelle entité `DevotionText`
+2. ✅ Ajout colonnes `devotionId`, `textId` (nullable)
+3. ✅ Mise à jour données existantes
+4. ✅ Création contraintes foreign key
+5. ✅ Application NOT NULL
 
-### Étapes automatiques (TypeORM)
-1. ✅ Ajout colonnes `devotionId` et `textId` (nullable)
-2. ✅ Mise à jour des données existantes
-3. ✅ Création contraintes foreign key
-4. ✅ Rendre colonnes NOT NULL
+### **🧪 Post-déploiement**
+- [ ] API répond (status 200)
+- [ ] **Auteurs visibles** : `"author": "BAB"` ✨
+- [ ] **Livres corrects** : `"book": "Sélections des Écrits du Bab"`
+- [ ] **Filtrage langue** : `?lang=fr` fonctionnel
+- [ ] **Tri chronologique** : Matin → Soir
 
-### Points critiques
-- **Backup obligatoire** avant migration
-- **Rollback possible** avec `down()` de la migration
-- **Monitoring** des logs pendant déploiement
+## 🎯 FONCTIONNALITÉS CLÉS
 
-## 🧪 Post-déploiement
+### **Endpoint principal**
+```
+GET /devotion/today?lang=fr
+→ Retourne les textes du jour avec :
+  - Contenu méditatif
+  - Références sacrées
+  - Auteurs et livres
+  - Moments (matin/soir)
+```
 
-- [ ] API répond correctement (status 200)
-- [ ] Auteurs s'affichent (`"author": "BAB"`)
-- [ ] Livres s'affichent (`"book": "Sélections des Écrits du Bab"`)
-- [ ] Filtrage par langue fonctionne
-- [ ] Création de devotion fonctionne
+### **Gestion multilingue**
+- **Textes traduits** dans plusieurs langues
+- **Filtrage automatique** par code langue
+- **Fallback** vers français si non disponible
 
-## 🚨 En cas d'erreur
+### **Calendrier intégré**
+- **Jours baha'is** avec mois sacrés
+- **Correspondance** calendrier grégorien
+- **Calcul automatique** des dates
 
-1. **Analyser les logs** de l'application
-2. **Vérifier la migration** dans la base
-3. **Rollback** si nécessaire :
-   ```bash
-   npm run typeorm migration:revert
-   ```
+## 🚨 GESTION DES ERREURS
 
-## 📝 Notes importantes
+### **Problèmes résolus**
+- ✅ **Route NaN** : Réorganisation routes controller
+- ✅ **Timezone** : Gestion dates UTC/local
+- ✅ **Relations null** : Colonnes foreign key explicites
+- ✅ **Auteurs manquants** : Jointure Book → Author
 
-- La migration est **idempotente** (peut être relancée)
-- Les contraintes CASCADE assurent l'intégrité
-- Les endpoints existants ne sont pas impactés
+### **Monitoring**
+- **Logs détaillés** pour debugging
+- **Réponses structurées** avec `ResponseService`
+- **Codes HTTP** appropriés (200, 404, 400)
+
+## 📝 NOTES IMPORTANTES
+
+### **Philosophie de l'app**
+- **Accessibilité** : Textes simples et clairs
+- **Spiritualité** : Contenus authentiques et respectueux
+- **Routine** : Usage quotidien encouragé
+- **Communauté** : Partage et méditation collective
+
+### **Évolution future**
+- **Audio** : Textes lus par des voix
+- **Notifications** : Rappels de méditation
+- **Statistiques** : Suivi pratique personnelle
+- **Partage social** : Envoyer aux proches
+
+---
+
+**🌟 Mission** : Offrir une expérience méditative enrichissante au quotidien
