@@ -7,7 +7,7 @@ import { CreateCompleteDevotionDto, AddTextToDevotionDto } from './dto/create-co
 import { ResponseService } from 'src/common/services/response.service';
 
 @ApiTags('devotion')
-@Controller('devotion')
+@Controller('api/devotion')
 export class DevotionController {
   constructor(private readonly devotionService: DevotionService) {}
 
@@ -29,7 +29,7 @@ export class DevotionController {
   @ApiOperation({ summary: 'Lecture du jour' })
   @ApiQuery({ name: 'lang', required: false, example: 'fr', description: 'Code langue' })
   async getTodayReading(@Query('lang') languageCode?: string) {
-     return await this.devotionService.getTodayReading(languageCode || 'fr');
+     return await this.devotionService.getTodayReading(languageCode || 'Fr');
   }
 
   @Get('date/:date')
@@ -119,5 +119,12 @@ export class DevotionController {
       addTextToDevotionDto.moment, 
       addTextToDevotionDto.displayOrder
     );
+  }
+
+  @Get('moment/:moment')
+  @ApiOperation({ summary: 'Récupérer la dévotion par moment' })
+  @ApiParam({ name: 'moment', example: 'matin' })
+  getDevotionByMoment(@Param('moment') moment: string) {
+    return this.devotionService.getDevotionByMoment(moment);
   }
 }

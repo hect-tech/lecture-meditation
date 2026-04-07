@@ -27,12 +27,12 @@ export class DevotionService {
       // Utiliser la date locale actuelle au lieu de celle de l'API
       const today = new Date();
       const todayString = today.toISOString().split('T')[0];
-      console.log('DEBUG: todayString (local):', todayString);
-      console.log('DEBUG: bahaiDate.date (API):', bahaiDate.date);
+      // console.log('DEBUG: todayString (local):', todayString);
+      // console.log('DEBUG: bahaiDate.date (API):', bahaiDate.date);
       
       // Créer la date à minuit UTC pour éviter les problèmes de timezone
       const todayUTC = new Date(todayString + 'T00:00:00Z');
-      console.log('DEBUG: todayUTC (minuit UTC):', todayUTC);
+      // console.log('DEBUG: todayUTC (minuit UTC):', todayUTC);
       
       // Vérifier si la dévotion existe déjà avec la date locale
       const existing = await this.findByDate(todayUTC);
@@ -45,6 +45,7 @@ export class DevotionService {
         date: todayUTC,
         bahaiMonth: bahaiDate.bahaiMonth,
         day: bahaiDate.day,
+        month: today.getMonth() + 1,
       });
 
       const savedDevotion = await this.devotionRepository.save(devotion);
@@ -203,11 +204,11 @@ export class DevotionService {
   }
 
   // Lecture du jour
-  async getTodayReading(languageCode: string = 'fr'): Promise<ApiResponse<any>> {
+  async getTodayReading(languageCode: string = 'Fr'): Promise<ApiResponse<any>> {
     // Utiliser la date d'aujourd'hui formatée
     const today = new Date().toISOString().split('T')[0];
-    console.log('DEBUG: getTodayReading appelé avec languageCode:', languageCode);
-    console.log('DEBUG: today formaté:', today);
+    // console.log('DEBUG: getTodayReading appelé avec languageCode:', languageCode);
+    // console.log('DEBUG: today formaté:', today);
     
     // D'abord vérifier s'il existe une dévotion pour aujourd'hui
     const devotionExists = await this.devotionRepository.findOne({
@@ -218,35 +219,7 @@ export class DevotionService {
       console.log('DEBUG: Aucune dévotion trouvée pour aujourd\'hui');
       return ResponseService.notFound(`Aucune dévotion trouvée pour aujourd\'hui (${today}). Veuillez d'abord créer la dévotion du jour.`);
     }
-
     
-    // const query = `
-    //   SELECT 
-    //     d.id as devotion_id,
-    //     d.date,
-    //     d."bahaiMonth",
-    //     d.day,
-    //     dt.id as devotion_text_id,
-    //     dt.moment,
-    //     dt."displayOrder",
-    //     dt."devotionId",
-    //     dt."textId",
-    //     t.content,
-    //     t.reference,
-    //     a.name AS author,
-    //     b.title AS book,
-    //     l.name AS language_name,
-    //     l.code AS language_code
-    //   FROM devotions d
-    //   INNER JOIN devotion_texts dt ON dt."devotionId" = d.id
-    //   INNER JOIN texts t ON t."id" = dt."textId"
-    //   INNER JOIN languages l ON l."id" = t."languageId"
-    //   LEFT JOIN authors a ON a."id" = t."authorId"
-    //   LEFT JOIN books b ON b."id" = t."bookId"
-    //   WHERE d.date = $1
-    //   AND l.code = $2
-    //   ORDER BY dt.moment, dt."displayOrder"
-    // `;
     const query = `
       SELECT 
         d.id as devotion_id,
@@ -275,9 +248,9 @@ export class DevotionService {
         ORDER BY dt.moment, dt."displayOrder"
     `;
     try {
-      console.log('DEBUG: exécution de la requête SQL avec params:', [today, languageCode]);
+      // console.log('DEBUG: exécution de la requête SQL avec params:', [today, languageCode]);
       const reading = await this.devotionRepository.query(query, [today, languageCode]);
-      console.log('DEBUG: résultat brut de la requête:', reading);
+      // console.log('DEBUG: résultat brut de la requête:', reading);
       
       if (!reading || reading.length === 0) {
         // return ResponseService.notFound('Aucun texte trouvé pour la dévotion du jour dans cette langue', reading);
@@ -419,6 +392,29 @@ export class DevotionService {
 
       return devotionText;
 
+    } catch (error) {
+      return ResponseService.badRequest(`Erreur: ${error.message}`);
+    }
+  }
+
+  async getDevotionByMoment(moment: string): Promise<ApiResponse<any>> {
+    try {
+      const devotion = await this.getTodayReading('Fr');
+
+      if (devotion.code !== 200) {
+        return ResponseService.notFound('Aucune dévotion trouvée pour aujourd\'hui');
+      }
+
+      const morning = moment == 'matin' ? 'MORNING': 'EVENING'
+
+      // console.log("information morning",morning)
+
+      const momentData = devotion.data.find((d: any) => d.moment === morning);
+      if (!momentData) {
+        return ResponseService.notFound(`Aucun texte trouvé pour le moment: ${morning}`);
+      }
+
+      return ResponseService.success(momentData, `Dévotion trouvée pour le moment: ${morning}`);
     } catch (error) {
       return ResponseService.badRequest(`Erreur: ${error.message}`);
     }

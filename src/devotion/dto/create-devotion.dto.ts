@@ -9,4 +9,7 @@ export class CreateDevotionDto {
 
   @ApiProperty({ example: 3, description: 'Numéro du jour' })
   day: number;
+
+  @ApiProperty({ example: 1, description: 'Chiffre du mois baháʼí' })
+  month: number;
 }

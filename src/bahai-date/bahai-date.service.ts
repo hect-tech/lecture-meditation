@@ -54,6 +54,7 @@ export class BahaiDateService {
     date: string;
     bahaiMonth: string;
     day: number;
+    month: number;
     bahaiYear: number;
   }> {
     const bahaiDate = await this.getTodayBahaiDate();
@@ -69,6 +70,7 @@ export class BahaiDateService {
       date: gregorianDate,
       bahaiMonth: bahaiDate.badi_date.month_name,
       day: bahaiDate.badi_date.day,
+      month: bahaiDate.greg_date.month,
       bahaiYear: bahaiDate.badi_date.year
     };
   }

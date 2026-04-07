@@ -4,7 +4,7 @@ import { IsArray, IsOptional, IsString, IsNumber } from 'class-validator';
 export class CreateCompleteDevotionDto {
   @ApiProperty({
     description: 'Liste des IDs des textes à inclure dans la dévotion',
-    example: [1, 2, 3],
+    example: [1, 2],
     isArray: true,
     type: 'number'
   })
@@ -14,7 +14,7 @@ export class CreateCompleteDevotionDto {
 
   @ApiProperty({
     description: 'Moments de la journée pour chaque texte (MATIN, SOIR, etc.)',
-    example: ['MORNING', 'EVENING', 'MORNING'],
+    example: ['MORNING', 'EVENING'],
     isArray: true,
     type: 'string',
     required: false

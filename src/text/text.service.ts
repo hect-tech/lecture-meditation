@@ -41,12 +41,41 @@ export class TextService {
     return this.textRepository.findOne({ where: { id }, relations: ['language', 'book'] });
   }
 
-  async update(id: number, updateTextDto: Partial<Text>) {
+  async update(id: number, updateTextDto: Partial<createTextDto>) {
     if (!await this.checkTextExists(id)) {
       return ResponseService.notFound('Text non trouvé');
     }
-    const result = await this.textRepository.update(id, updateTextDto);
-    return ResponseService.updated(result, 'Text mis à jour avec succès');
+    
+    // Préparer les données pour la mise à jour
+    const updateData: any = {};
+    
+    if (updateTextDto.content) {
+      updateData.content = updateTextDto.content;
+    }
+    
+    if (updateTextDto.reference) {
+      updateData.reference = updateTextDto.reference;
+    }
+    
+    if (updateTextDto.languageId) {
+      // Utiliser l'ID directement pour la relation
+      updateData.languageId = updateTextDto.languageId;
+    }
+    
+    if (updateTextDto.bookId) {
+      // Utiliser l'ID directement pour la relation
+      updateData.bookId = updateTextDto.bookId;
+    }
+    
+    await this.textRepository.update(id, updateData);
+    
+    // Récupérer le texte mis à jour pour le retourner
+    const updatedText = await this.textRepository.findOne({ 
+      where: { id }, 
+      relations: ['language', 'book'] 
+    });
+    
+    return ResponseService.updated(updatedText, 'Text mis à jour avec succès');
   }
 
   async remove(id: number) {

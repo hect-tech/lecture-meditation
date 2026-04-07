@@ -24,7 +24,7 @@ export class TextController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTextDto: any) {
+  update(@Param('id') id: string, @Body() updateTextDto: Partial<createTextDto>) {
     return this.textService.update(+id, updateTextDto);
   }
 

@@ -5,11 +5,18 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Configuration CORS
+  app.enableCors({
+    origin: ['http://localhost:4200', 'http://localhost:4201'],
+    credentials: true,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Bahai Devotional API')
     .setDescription('API pour lectures quotidiennes baha\'ies')
     .setVersion('1.0')
     .addTag('devotion')
+    .addTag('daily-reflections')
     .addTag('texts')
     .addTag('books')
     .addTag('authors')

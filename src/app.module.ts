@@ -14,6 +14,7 @@ import { SearchModule } from './search/search.module';
 import { AdminModule } from './admin/admin.module';
 import { DatabaseController } from './database/database.controller';
 import { BahaiDateModule } from './bahai-date/bahai-date.module';
+import { DailyReflectionModule } from './daily-reflection/daily-reflection.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -51,6 +52,7 @@ import configuration from './config/configuration';
     SearchModule,
     AdminModule,
     BahaiDateModule,
+    DailyReflectionModule,
   ],
   controllers: [AppController, DatabaseController],
   providers: [AppService],

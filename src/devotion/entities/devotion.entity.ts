@@ -15,6 +15,9 @@ export class Devotion {
   @Column({ type: 'int' })
   day: number;
 
+  @Column({ type: 'int', nullable: true })
+  month: number;
+
   @OneToMany(() => DevotionText, devotionText => devotionText.devotion)
   devotionTexts: DevotionText[];
 }

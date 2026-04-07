@@ -1,99 +1,219 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# lecture-meditation
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Application de **lecture méditative quotidienne** basée sur les textes sacrés baha'is, développée avec NestJS.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Mission
 
-## Description
+Offrir une expérience méditative enrichissante au quotidien à travers des textes sacrés, des prières et des moments de réflexion spirituelle.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Fonctionnalités
 
-## Project setup
+- **Textes quotidiens** : Méditations guidées avec textes sacrés baha'is
+- **Moments de prière** : Matin et soir pour structurer la journée
+- **Multilingue** : Support du français, anglais et autres langues
+- **Calendrier baha'i** : Intégration du calendrier sacré
+- **API REST** : Endpoints complets pour la gestion des dévotions
 
-```bash
-$ npm install
+## Architecture
+
+### **Backend NestJS**
+- **Base de données** : PostgreSQL avec TypeORM
+- **Entités principales** : Devotion, DevotionText, Text, Book, Author, Language
+- **Relations complexes** : Gestion des foreign keys et jointures SQL
+- **Gestion multilingue** : Filtrage par code langue
+
+### **Structure des données**
+```
+Devotion (date, mois baha'i, jour)
+  └── DevotionText[] (moment, ordre)
+      └── Text (contenu, référence)
+          ├── Language (code, nom)
+          ├── Book (titre)
+          └── Author (nom)
 ```
 
-## Compile and run the project
+## Installation
 
+### **Prérequis**
+- Node.js 18+
+- PostgreSQL
+- npm ou yarn
+
+### **Configuration**
 ```bash
-# development
-$ npm run start
+# Cloner le projet
+git clone https://github.com/hect-tech/lecture-meditation.git
+cd lecture-meditation
 
-# watch mode
-$ npm run start:dev
+# Installer les dépendances
+npm install
 
-# production mode
-$ npm run start:prod
+# Configurer les variables d'environnement
+cp .env.example .env
+# Éditer .env avec vos configurations BDD
 ```
 
-## Run tests
+## Démarrage
 
 ```bash
-# unit tests
-$ npm run test
+# Développement
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
+# Production
+npm run build
+npm run start:prod
 
-# test coverage
-$ npm run test:cov
+# Tests
+npm run test
+npm run test:e2e
 ```
 
-## Deployment
+## API Endpoints
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### **Dévotions**
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Obtenir la dévotion du jour
+GET /devotion/today?lang=fr
+
+# Créer une dévotion
+POST /devotion/today
+
+# Ajouter un texte à la dévotion du jour
+POST /devotion/add-text
+
+# Créer une dévotion complète
+POST /devotion/complete
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### **Langues**
+```bash
+# Lister les langues disponibles
+GET /languages
 
-## Resources
+# Obtenir une langue par code
+GET /languages/:code
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## Base de données
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### **Schéma**
+- **devotions** : Dévotions quotidiennes avec dates baha'ies
+- **devotion_texts** : Textes associés aux dévotions
+- **texts** : Contenu des textes sacrés
+- **books** : Livres sources
+- **authors** : Auteurs (BAB, Baha'u'llah, etc.)
+- **languages** : Langues disponibles
 
-## Support
+### **Migrations**
+```bash
+# Créer une migration
+npm run typeorm migration:create -- -n MigrationName
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Exécuter les migrations
+npm run typeorm migration:run
 
-## Stay in touch
+# Annuler la dernière migration
+npm run typeorm migration:revert
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Déploiement
+
+### **Production (Railway)**
+L'application est déployée sur Railway avec :
+- **Base de données** : PostgreSQL géré par Railway
+- **Migrations automatiques** : `migrationsRun: true` en production
+- **URL** : https://votre-app.railway.app
+
+### **Variables d'environnement**
+```bash
+# Production (.env.production)
+NODE_ENV=production
+DATABASE_URL=postgresql://user:pass@host:5432/db
+PORT=3000
+```
+
+## Tests
+
+### **Validation de l'API**
+```bash
+# Test de l'endpoint principal
+curl "lecture-meditation-production.up.railway.app/devotion/today?lang=fr"
+
+# Réponse attendue
+{
+  "data": [
+    {
+      "content": "Texte méditatif...",
+      "reference": "Kitáb-i-Aqdas 123",
+      "author": "Baha'u'llah",
+      "book": "Sélections des Écrits de Baha'u'llah",
+      "moment": "MORNING",
+      "displayOrder": 1
+    }
+  ],
+  "message": "Devotion du jour retournée avec succès !"
+}
+```
+
+## Développement
+
+### **Structure du projet**
+```
+src/
+├── devotion/           # Gestion des dévotions
+├── text/              # Gestion des textes
+├── language/          # Gestion des langues
+├── book/              # Gestion des livres
+├── author/            # Gestion des auteurs
+├── bahai-date/        # Service calendrier baha'i
+├── config/            # Configuration TypeORM
+└── migrations/        # Migrations de base de données
+```
+
+### **Conventions**
+- **TypeScript** strict avec décorateurs
+- **DTOs** pour la validation des entrées
+- **Services** pour la logique métier
+- **Contrôleurs** pour les endpoints REST
+- **Entités** TypeORM pour la BDD
+
+## Gestion des erreurs
+
+### **Problèmes résolus**
+- **Route NaN** : Réorganisation des routes
+- **Timezone** : Gestion dates UTC/local
+- **Relations NULL** : Foreign keys explicites
+- **Auteurs manquants** : Jointures SQL optimisées
+- **Migration production** : Colonnes déjà existantes
+
+### **Monitoring**
+- **Logs structurés** avec ResponseService
+- **Codes HTTP** appropriés (200, 404, 400)
+- **Gestion des retries** base de données
+
+## Contribution
+
+1. Forker le projet
+2. Créer une branche `feature/nom-feature`
+3. Commiter les changements
+4. Pousser et créer une Pull Request
+
+## Notes importantes
+
+### **Philosophie**
+- **Accessibilité** : Textes simples et clairs
+- **Spiritualité** : Contenus authentiques et respectueux
+- **Routine** : Usage quotidien encouragé
+- **Communauté** : Partage et méditation collective
+
+### **Évolutions futures**
+- **Audio** : Textes lus par des voix
+- **Notifications** : Rappels de méditation
+- **Statistiques** : Suivi pratique personnelle
+- **Partage social** : Envoyer aux proches
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-# lecture-meditation
+Ce projet est sous licence MIT.
+
+---
